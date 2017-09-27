@@ -1,10 +1,15 @@
 body {
     margin: 0px;
     padding: 0px;
-    background: black
+    background: #0E243B;
 }
 
 h1 { 
     color: #dddddd;
     background-color: #333333;
+    text-align: center;
+}
+
+#gameContainer canvas {
+ margin: 0 auto;
 }

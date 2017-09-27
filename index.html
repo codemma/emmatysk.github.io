@@ -4,10 +4,21 @@
     <title>Space Avengers</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
     <script src="libs/phaser.min.js"></script>
+    <script src="source/maingamestate.js"></script>
 </head>
 <body>
-    <h1>Space Avengers</h1>
-    <div id="gameContainer"></div>
-    <script > var game = new Phaser.Game(400, 600, Phaser.AUTO, 'gameContainer');</script>
+     <div id="header">
+             <img src="assets/logo3.png" width="100%" alt="logo" />
+    </div> 
+    
+    <div id="gameContainer">
+    <script> var game = new Phaser.Game(400, 600, Phaser.AUTO, 'gameContainer');
+    // Register Game States
+    game.state.add('MainGame', mainGameState);
+    // Start with the MainGame State
+    game.state.start("MainGame");
+    </script>
+    </div>
+    
 </body>
 </html>
