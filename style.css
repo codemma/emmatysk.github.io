@@ -30,6 +30,7 @@ h1 {
 
 #gameContainer canvas {
  margin: 0 auto;
+ padding-bottom: 10vw;    
 }
 
 .wrapper {
