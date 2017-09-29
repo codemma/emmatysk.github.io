@@ -14,7 +14,9 @@ mainGameState.preload = function () {
    
     this.game.load.image('stars', 'assets/stars3.png');
     this.game.load.image('asteroid', 'assets/asteroid.png');
+    this.game.load.image('particle', 'assets/particle.png');
     this.game.load.image('rocket', 'assets/rocket.png');
+    this.game.load.image('enemy', 'assets/cat3.svg');
     this.game.load.image('bullet-laser', 'assets/bullet-laser.png');
     this.game.load.audio('mainmusic', 'music/spacetrip.mp3');
     this.game.load.audio('player_fire_01', 'assets/audio/player_fire_01.mp3');
@@ -32,8 +34,18 @@ mainGameState.create = function () {
     this.game.stage.backgroundColor = "#0E243B";
     
     
+
+    
     //Create field of stars
     starfield = this.game.add.tileSprite(0, 0, 400, 600, 'stars');
+    
+    //Add particle explosion
+    this.emitter = game.add.emitter(0, 0, 100);
+
+    this.emitter.makeParticles('particle');
+    this.emitter.gravity = 200;
+
+    //game.input.onDown.add(mainGameState.particleBurst, this);
     
     //Text fields - Score and Lives
     var textStyle = {font: "16px Arial", fill: "#ffffff", align: "center"}
@@ -64,13 +76,16 @@ mainGameState.create = function () {
     //Bullet timer
     this.bulletTimer = .3;
     
+    //Bullet timer
+    this.enemyTimer = 10.0;
+    
 
     
-    //Asteroid group
+    //Groups
     this.asteroids = this.game.add.group();
-    
-    //Bullet group
     this.bullets = this.game.add.group();
+    this.enemies = this.game.add.group();
+    this.enemyBullets = this.game.add.group();
     
     //Background music
     this.music = this.game.add.audio('mainmusic');
@@ -94,26 +109,70 @@ mainGameState.create = function () {
     this.playerShip.anchor.setTo(0.5, 0.5);
     this.playerShip.scale.setTo(.3, .3);
     
+    
      //Allow phycis on playership
     this.game.physics.arcade.enable(this.playerShip);
     //Ship should not be pushed down by asteroids
     this.playerShip.body.immovable = true;
+    
 
     //Track input
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.fireKey = this.game.input.keyboard.addKey(Phaser.Keyboard.Z);
 };
 
+
+mainGameState.particleBurst = function(pointer)  {
+
+    //  Position the emitter where the mouse/touch event was
+    this.emitter.x = pointer.x;
+    this.emitter.y = pointer.y;
+
+    //  The first parameter sets the effect to "explode" which means all particles are emitted at once
+    //  The second gives each particle a 2000ms lifespan
+    //  The third is ignored when using burst/explode mode
+    //  The final parameter (10) is how many particles will be emitted in this single burst
+    this.emitter.start(true, 2000, null, 10);
+
+}
+
+function showGame() {
+    //document.getElementById("gameContainer").style.display = "block";
+ window.scroll({
+  top: 2500, 
+  left: 0, 
+  behavior: 'smooth' 
+});
+    
+setTimeout(function() {  game.state.start("MainGame"); }, 1000);
+
+};
+
+
 // Collision
-mainGameState.onAsteroidBulletCollision = function(asteroid, bullet) {
-    asteroid.destroy();
-    bullet.destroy();
+mainGameState.onAsteroidBulletCollision = function(object1, object2) {
+    
+    if (object1.key.includes('asteroid')) {
+        this.particleBurst(object1);
+    }
+    else {
+        this.particleBurst(object2);
+    }
+   
+    object1.pendingDestroy =true;
+    object2.pendingDestroy = true;
     this.playerScore += 1;
 };
 
 // Collision
-mainGameState.onAsteroidPlayerCollision = function(playerShip, asteroid) {
-    asteroid.destroy();
+mainGameState.onAsteroidPlayerCollision = function(object1, object2) {
+    if (object1.key.includes('asteroid')) {
+        object1.destroy();
+    }
+    else {
+        object2.destroy();
+    }
+   
     this.playerLives -= 1;
     
     if ( this.playerLives <= 0 ) {
@@ -121,8 +180,60 @@ mainGameState.onAsteroidPlayerCollision = function(playerShip, asteroid) {
     }
 };
 
+mainGameState.playerOnEnemyCollision = function(object1, object2) {
+    if (object1.key.includes('enemy')) {
+        this.particleBurst(object1);
+        object1.pendingDestroy = true;
+        object2.pendingDestroy = true;
+    }
+    else {
+        object2.destroy();
+    }
+    this.playerScore += 4;
+};
+
+mainGameState.enemyOnPlayerCollision = function(object1, object2) {
+    
+    this.playerLives -= 2;
+    
+    if ( this.playerLives <= 0 ) {
+        game.state.start("GameOver");
+    }
+
+};
+
+
+
+
 // UPDATE
 mainGameState.update = function() { 
+    
+    
+    //Check enemies position
+     for (i=0; i<this.enemies.children.length; i++) {
+        if (this.enemies.children[i].x < 10) {
+            this.enemies.children[i].body.velocity.x = 200;
+        }
+         else if (this.enemies.children[i].x >340 && this.enemies.children[i].body.velocity.x>0) {
+             this.enemies.children[i].body.velocity.x = -200;
+         }
+    };
+    
+    //Spawn enemy bullet
+    
+    this.enemyTimer = this.enemyTimer  - game.time.physicsElapsed;
+    if(this.enemies.children.length == 0 && this.enemyTimer<=0) {
+         this.spawnEnemy();
+         this.enemyTimer = 5;
+    }
+    //Spawn enemy bullet
+    if (this.enemies.children.length >0 && this.enemyTimer <= 0) {
+       enemy = this.enemies.children[game.rnd.integerInRange(0, (this.enemies.children.length)-1)];
+     mainGameState.spawnEnemyBullet(enemy.x, enemy.y); 
+        this.enemyTimer = 20;
+    };
+    
+
     
     
     this.scoreValue.setText(this.playerScore);
@@ -146,12 +257,17 @@ mainGameState.update = function() {
     game.physics.arcade.collide(this.asteroids, this.bullets, mainGameState.onAsteroidBulletCollision, null, this);
     //Check for collision - asteriod and player
     
-    
-    
     game.physics.arcade.collide(this.playerShip, this.asteroids, mainGameState.onAsteroidPlayerCollision, null, this);
+    //
+    game.physics.arcade.collide(this.enemies, this.bullets, mainGameState.playerOnEnemyCollision, null, this);
+    game.physics.arcade.collide(this.playerShip, this.enemyBullets, mainGameState.enemyOnPlayerCollision, null, this);
+    
+   
+    
 };
 
 //SPAWN ASTEROID
+
 mainGameState.spawnAsteroid = function() {
     //New Asteroid speed
     var asteroidSpeed = game.rnd.integerInRange(150, 300);
@@ -170,8 +286,28 @@ mainGameState.spawnAsteroid = function() {
             this.asteroids.children[i].destroy();
         }
     };
+};
+
+
+
+
+//SPAWN Enemy
+
+mainGameState.spawnEnemy = function() {
+    //New Asteroid speed
+    var enemySpeed = game.rnd.integerInRange(150, 300);
     
+    this.enemy = this.add.sprite(370, game.rnd.integerInRange(150, 200), 'enemy');
     
+    this.enemy.anchor.setTo(0.5, 0.5);
+    
+    this.enemy.scale.setTo(0.3, 0.3);
+    this.game.physics.arcade.enable(this.enemy);
+    this.enemy.body.immovable = true;
+    this.enemy.body.velocity.x = -enemySpeed;  //OBS
+    this.enemies.add(this.enemy);
+    
+        
 };
 
 
@@ -222,5 +358,10 @@ mainGameState.spawnPlayerBullet = function() {
     this.bullets.add(bullet);
 };
 
-
+mainGameState.spawnEnemyBullet = function(x,y) {
+    var enemybullet = this.add.sprite(x, y, 'bullet-laser');
+    this.game.physics.arcade.enable(enemybullet);
+    enemybullet.body.velocity.y = 300;
+    this.enemyBullets.add(enemybullet);
+};
 

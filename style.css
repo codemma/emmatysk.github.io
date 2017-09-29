@@ -4,6 +4,24 @@ body {
     background: #0E243B;
 }
 
+#header {
+      background-image: url(assets/background.svg);
+      background-size: cover;
+      background-repeat: no-repeat;
+      margin: 0 auto;
+      min-height: 100vh;
+    
+}
+
+#logo {
+    padding-top: 4vh;
+    width: 60%;
+    margin: 0 auto;
+    display: block;
+    min-width: 40vw;
+}
+
+
 h1 { 
     color: #dddddd;
     background-color: #333333;
@@ -12,4 +30,32 @@ h1 {
 
 #gameContainer canvas {
  margin: 0 auto;
+}
+
+.wrapper {
+    text-align: center;
+}
+
+#introText {
+    color: #E5F529;
+    margin: 0 auto;
+    width: 30%;
+    padding-bottom: 1vh;
+    padding-top: 4vh;
+    font-family: Kefa;
+    font-size: 2vh;
+
+}
+
+.button {
+  position: relative;
+   top: 30%;
+    background: #BA689A;
+   border-radius: 28px;
+    border-color: none;
+  font-family: Kefa;
+  color: #ffffff;
+  font-size: 3vh;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
 }

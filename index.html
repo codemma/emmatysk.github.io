@@ -6,21 +6,33 @@
     <script src="libs/phaser.min.js"></script>
     <script src="source/maingamestate.js"></script>
      <script src="source/gameoverstate.js"></script>
+     <script src="source/mainmenu.js"></script>
 </head>
 <body>
      <div id="header">
-             <img src="assets/logo3.png" width="100%" alt="logo" />
+             <img id="logo" src="assets/header2.svg" alt="logo" />
+    <div class="wrapper">
+    <div id="introText">In 2018 the cats took over the world, and now they are trying to take over space. You don´t want space to become their sandbox (that´s gross). Stop them before they reach your dog-station by shooting with Z-key, move left to right with the arrows. <p>Lets kick some cat butt!</p></div>
+    <button class="button" onclick="showGame()">Fight!</button>
+    </div>      
     </div> 
     
-    <div id="gameContainer">
+    
+    
+    
+    <div id="gameContainer" >
+        
     <script> var game = new Phaser.Game(400, 600, Phaser.AUTO, 'gameContainer');
     // Register Game States
+    game.state.add('MainMenu', mainMenuState);    
     game.state.add('MainGame', mainGameState);
     game.state.add('GameOver', gameOverState);    
     // Start with the MainGame State
-    game.state.start("MainGame");
+    game.state.start("MainMenu");
     </script>
     </div>
     
+    <div id="showGame"></div>
 </body>
 </html>
+
