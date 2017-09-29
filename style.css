@@ -30,7 +30,7 @@ h1 {
 
 #gameContainer canvas {
  margin: 0 auto;
- padding-bottom: 10vw;    
+ padding-bottom: 5vw;    
 }
 
 .wrapper {
@@ -38,7 +38,7 @@ h1 {
 }
 
 #introText {
-    color: #E5F529;
+    color: #e6ffff;
     margin: 0 auto;
     width: 30%;
     padding-bottom: 1vh;
