@@ -350,7 +350,7 @@ mainGameState.update = function() {
 mainGameState.spawnAsteroid = function() {
     
     
-    this.asteroid = this.add.sprite(game.rnd.integerInRange(30, game.width-10), 0, 'asteroid');
+    this.asteroid = this.add.sprite(game.rnd.integerInRange(30, game.width-30), 0, 'asteroid');
     this.asteroid.anchor.setTo(0.5, 0.5);
     
     this.asteroid.scale.setTo(0.3, 0.3);
