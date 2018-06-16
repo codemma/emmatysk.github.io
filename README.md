@@ -1,4 +1,4 @@
 ## Space Avengers
 
-I developed this game during a week at a coding camp for women called Tjejerkodar. First time I made a came with javascript, with the help of the phaser library.
+I developed this game during a week at a coding camp for women called Tjejerkodar. This was the first time I developed a game with Javascript, with the help of a HTML55 framework called Phaser.
  
